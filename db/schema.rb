@@ -11,7 +11,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150304173749) do
+ActiveRecord::Schema.define(version: 20150304180853) do
+
+  create_table "clocks", force: :cascade do |t|
+    t.integer  "task_id"
+    t.integer  "user_id"
+    t.boolean  "clocked_in"
+    t.datetime "time_in"
+    t.datetime "time_out"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "projects", force: :cascade do |t|
     t.string   "name"
