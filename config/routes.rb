@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  resources :clocks
+
   resources :tasks
 
   resources :projects
