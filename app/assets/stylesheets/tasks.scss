@@ -4,7 +4,6 @@
 
 #tasks {
 	text-align: center;
-	padding: 2em;
 }
 
 #tasks table {
@@ -13,7 +12,6 @@
 }
 
 #tasks td {
-	min-width: 5em;
 	padding: 0.25em 0.5em;
 	font-family: serif;
 	font-size: 1em;
@@ -32,24 +30,11 @@
 }
 
 #tasks tr:first-child {
-	background-color: rgba(0,160,255,0.2);
+	background-color: rgba(0,255,255,0.2);
 }
 
-#tasks input[type='submit'] {
-	-webkit-appearance: none;
-	width: 7em;
-	outline: none;
-	border: none;
-	background-color: lime;
-	cursor: pointer;
-	display: inline-block;
-	padding: 0.5em;
-}
-
-#tasks input[type='submit']:hover {
-	box-shadow: 0em 0em 1em black;
-}
-
-#tasks .clock_out_field ~ input[type='submit'] {
-	background-color: orange;
+#tasks thead tr:first-child > th, #tasks h5 {
+	text-transform: uppercase;
+	text-align: center;
+	font-size: 1.12em;
 }

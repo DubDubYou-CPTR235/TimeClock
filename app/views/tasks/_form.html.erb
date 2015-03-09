@@ -11,15 +11,9 @@
     </div>
   <% end %>
 
-  <div class="field">
-    <%= f.label :name %><br>
+    <%= f.label :name %>
     <%= f.text_field :name %>
-  </div>
-  <div class="field">
-    <%= f.label :project_id %><br>
+    <%= f.label :project_id %>
     <%= f.select(:project_id, options_from_collection_for_select(Project.all, :id, :name)) %>
-  </div>
-  <div class="actions">
     <%= f.submit %>
-  </div>
 <% end %>

@@ -1,9 +1,14 @@
 <div id='tasks'>
 
 <h1>TimeClock</h1>
+<p id="notice"><%= notice %></p>
 
+<!--Table for Recent Tasks-->
 <table>
   <thead>
+    <tr>
+      <th colspan="7">Recent Tasks</th>
+    </tr>
     <tr>
       <th>Task Name</th>
       <th>Project Name</th>
@@ -22,7 +27,7 @@
       <% end %>
     <% end %>
     <% rTasks.reject!(&:blank?) %>
-    <% rTasks.each do |task| %>
+    <% rTasks.take(5).each do |task| %>
       <tr>
         <td><%= task.name %></td>
         <td><%= Project.find(task.project_id).name %></td>
@@ -47,14 +52,14 @@
         	<% if ctask %>
 	        	<%= form_tag({controller: "time_cards", id: ctask.id, action: "update"}, {method: "patch"}) do %>
 	        		<input type='hidden' name='time_card[clocked_in]' value='0' class='clock_out_field'>
-	        		<%= submit_tag("Clock Out") %>
+              <button type='submit' class="btn waves-effect waves-light red">Clock Out</button>
 	        	<% end %>
 	        <% else %>
 	        	<%= form_tag(controller: "time_cards", action: "create", method: "post") do %>
 	        		<input type='hidden' name='time_card[task_id]' value='<%= task.id %>'>
               <input type='hidden' name='time_card[user_id]' value='<%= current_user.id %>'>
 	        		<input type='hidden' name='time_card[clocked_in]' value='1'>
-	        		<%= submit_tag(" Clock In ") %>
+	        		<button type='submit' class="btn waves-effect waves-light green">Clock In</button>
 	        	<% end %>
 	        <% end %>
         </td>
@@ -76,13 +81,42 @@
 
 <br>
 
+<!--List of All Projects and Tasks-->
+<h5>All Projects</h5>
+<ul class='collapsible amber'>
+  <% Project.all.each do |project| %>
+    <li>
+      <div class='collapsible-header green lighten-1'><%= project.name %></div>
+      <div class='collapsible-body'><br>
+        <% Task.where("project_id == "+project.id.to_s).each do |task| %>
+          <% ctask = TimeCard.find_by(user_id: current_user.id, task_id: task.id, clocked_in: 1) %>
+          <% if ctask %>
+            <%= form_tag({controller: "time_cards", id: ctask.id, action: "update"}, {method: "patch"}) do %>
+              <input type='hidden' name='time_card[clocked_in]' value='0' class='clock_out_field'>
+              <button type='submit' class="btn waves-effect waves-light red"><%= task.name %> - Clock Out</button>
+            <% end %>
+          <% else %>
+            <%= form_tag(controller: "time_cards", action: "create", method: "post") do %>
+              <input type='hidden' name='time_card[task_id]' value='<%= task.id %>'>
+              <input type='hidden' name='time_card[user_id]' value='<%= current_user.id %>'>
+              <input type='hidden' name='time_card[clocked_in]' value='1'>
+              <button type='submit' class="btn waves-effect waves-light green"><%= task.name %> - Clock In</button>
+            <% end %>
+          <% end %>
+        <% end %>
+      </div>
+    </li>
+  <% end %>
+</ul>
+
+<br>
+
 <% if current_user.admin %>
 	<%= link_to 'New Task', new_task_path %>
 <% end %>
 
 <%= link_to 'Sign Out', destroy_user_session_path, method: :delete %>
 
-<br>
-<p id="notice"><%= notice %></p>
+<br><br><br>
 
 </div>
