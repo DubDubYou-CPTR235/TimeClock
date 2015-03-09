@@ -11,16 +11,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150304180853) do
+ActiveRecord::Schema.define(version: 20150309053029) do
 
   create_table "clocks", force: :cascade do |t|
-    t.integer  "task_id"
     t.integer  "user_id"
-    t.boolean  "clocked_in"
-    t.datetime "time_in"
-    t.datetime "time_out"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.integer  "task_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "projects", force: :cascade do |t|
@@ -32,6 +29,14 @@ ActiveRecord::Schema.define(version: 20150304180853) do
   create_table "tasks", force: :cascade do |t|
     t.string   "name"
     t.integer  "project_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "time_cards", force: :cascade do |t|
+    t.integer  "user_id"
+    t.integer  "task_id"
+    t.integer  "clocked_in"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

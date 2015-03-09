@@ -1,0 +1,31 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Time Cards</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>User</th>
+      <th>Task</th>
+      <th>Clocked in</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @time_cards.each do |time_card| %>
+      <tr>
+        <td><%= time_card.user_id %></td>
+        <td><%= time_card.task_id %></td>
+        <td><%= time_card.clocked_in %></td>
+        <td><%= link_to 'Show', time_card %></td>
+        <td><%= link_to 'Edit', edit_time_card_path(time_card) %></td>
+        <td><%= link_to 'Destroy', time_card, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Time card', new_time_card_path %>
