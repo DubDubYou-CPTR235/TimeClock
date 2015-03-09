@@ -1,3 +1,55 @@
 // Place all the styles related to the Tasks controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
+
+#tasks {
+	text-align: center;
+	padding: 2em;
+}
+
+#tasks table {
+	display: inline-table;
+	margin: 1em 0em;
+}
+
+#tasks td {
+	min-width: 5em;
+	padding: 0.25em 0.5em;
+	font-family: serif;
+	font-size: 1em;
+}
+
+#tasks td:nth-child(1), #tasks td:nth-child(2) {
+	text-align: left;
+}
+
+#tasks tbody tr:nth-child(odd) {
+	background-color: rgba(255,255,255,0.1);
+}
+
+#tasks tbody tr:nth-child(even) {
+	background-color: rgba(255,255,255,0.2);
+}
+
+#tasks tr:first-child {
+	background-color: rgba(0,160,255,0.2);
+}
+
+#tasks input[type='submit'] {
+	-webkit-appearance: none;
+	width: 7em;
+	outline: none;
+	border: none;
+	background-color: lime;
+	cursor: pointer;
+	display: inline-block;
+	padding: 0.5em;
+}
+
+#tasks input[type='submit']:hover {
+	box-shadow: 0em 0em 1em black;
+}
+
+#tasks .clock_out_field ~ input[type='submit'] {
+	background-color: orange;
+}

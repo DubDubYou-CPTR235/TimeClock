@@ -26,7 +26,9 @@ class TimeCardsController < ApplicationController
   def create
     @uTask = TimeCard.where("user_id == "+current_user.id.to_s+" and clocked_in == 1")
     if @uTask
-      @uTask.update_all(clocked_in: 0)
+      @uTask.each do |entry|
+	entry.update(clocked_in: 0)
+      end
     end
     @time_card = TimeCard.new(time_card_params)
 
