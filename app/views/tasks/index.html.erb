@@ -1,22 +1,25 @@
-<div class='navbar-fixed' style='position: fixed; left: 0px; top: 0px;'>
+<!-- Top Navigation Bar -->
+<div class='navbar-fixed'>
 	<nav class='amber'>
 		<div class='nav-wrapper container'>
 			<a href='#' class='brand-logo'>TimeClock</a>
 			<ul class='right'>
+				<!-- Add 'New' Links if the user is admin-->
 				<% if current_user.admin %>
 					<li><%= link_to 'New Project', new_project_path, :class => "btn waves-effect waves-light" %></li>
 					<li><%= link_to 'New Task', new_task_path, :class => "btn waves-effect waves-light" %></li>
 				<% end %>
+				<!-- End admin links -->
 				<li><%= link_to 'Sign Out', destroy_user_session_path, method: :delete, :class => "btn waves-effect waves-light" %></li>
 			</ul>
 		</div>
 	</nav>
 </div>
+<!-- End Top Navigation -->
 
 <br><br><br>
 
 <div id='tasks'>
-
 <p id="notice"><%= notice %></p>
 
 <!--Table for Recent Tasks-->
@@ -36,6 +39,7 @@
   </thead>
 
   <tbody>
+  	<!-- Get all tasks in order of recently clocked -->
     <% rTasks = [] %>
     <% TimeCard.where("user_id == "+current_user.id.to_s).group("task_id").order("updated_at DESC").each do |entry| %>
       <% if entry.task_id %>
@@ -46,11 +50,13 @@
       <% end %>
     <% end %>
     <% rTasks.reject!(&:blank?) %>
+    <!-- Select the first 5 and display them in a table -->
     <% rTasks.take(5).each do |task| %>
       <tr>
         <td><%= task.name %></td>
         <td><%= Project.find(task.project_id).name %></td>
         <td>
+          <!-- Get hours that the current user has worked on a task -->
           <% entries = TimeCard.where("user_id == "+current_user.id.to_s+" and task_id == "+task.id.to_s).order("updated_at DESC") %>
           <% @hours = 0 %>
           <% if entries %>
@@ -65,8 +71,10 @@
           <% @mins = @hours*60 %>
           <% @hours -= @mins/60 %>
           <%= @hours.to_i.to_s.rjust(2, "0")+":"+@mins.to_i.to_s.rjust(2, "0") %>
+          <!-- end setting hours -->
         </td>
         <td>
+          <!-- Change clock button dependent on clock status for a given task -->
           <% ctask = TimeCard.find_by(user_id: current_user.id, task_id: task.id, clocked_in: 1) %>
         	<% if ctask %>
 	        	<%= form_tag({controller: "time_cards", id: ctask.id, action: "update"}, {method: "patch"}) do %>
@@ -81,6 +89,7 @@
 	        		<button type='submit' class="btn waves-effect waves-light green">Clock In</button>
 	        	<% end %>
 	        <% end %>
+	        <!-- end clock button -->
         </td>
         <td>
           <% if entries.first %>
@@ -90,11 +99,12 @@
           <% end %>
         </td>
         <% if current_user.admin %>
-        <td><%= link_to 'Edit', edit_task_path(task) %></td>
-        <td><%= link_to 'Delete', task, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+	        <td><%= link_to 'Edit', edit_task_path(task) %></td>
+	        <td><%= link_to 'Delete', task, method: :delete, data: { confirm: 'Are you sure?' } %></td>
         <% end %>
       </tr>
     <% end %>
+    <!-- end showing 5 recent tasks -->
   </tbody>
 </table>
 
@@ -103,25 +113,32 @@
 <!--List of All Projects and Tasks-->
 <h5>All Projects</h5>
 <ul class='collapsible amber'>
+  <!-- iterate over each project -->
   <% Project.all.each do |project| %>
     <li>
       <div class='collapsible-header green lighten-1'><%= project.name %></div>
       <div class='collapsible-body'><br>
+      	<!-- iterate over each task within a project -->
         <% Task.where("project_id == "+project.id.to_s).each do |task| %>
-          <% entries = TimeCard.where("task_id == "+task.id.to_s) %>
-          <% @hours = 0 %>
-          <% if entries %>
-            <% entries.each do |entry| %>
-              <% if entry.clocked_in == 1 %>
-                <% @hours += (Time.now-entry.created_at.to_time)/1.hour %>
-              <% else %>
-                <% @hours += (entry.updated_at.to_time-entry.created_at.to_time)/1.hour %>
-              <% end %>
-            <% end %>
-          <% end %>
-          <% @mins = @hours*60 %>
-          <% @hours -= @mins/60 %>
-          <% @total_hours = @hours.to_i.to_s.rjust(2, "0")+":"+@mins.to_i.to_s.rjust(2, "0") %> 
+        	<!-- if the current user is admin, show the total hours -->
+        	<% @total_hours = "" %>
+        	<% if current_user.admin %>
+	          <% entries = TimeCard.where("task_id == "+task.id.to_s) %>
+	          <% @hours = 0 %>
+	          <% if entries %>
+	            <% entries.each do |entry| %>
+	              <% if entry.clocked_in == 1 %>
+	                <% @hours += (Time.now-entry.created_at.to_time)/1.hour %>
+	              <% else %>
+	                <% @hours += (entry.updated_at.to_time-entry.created_at.to_time)/1.hour %>
+	              <% end %>
+	            <% end %>
+	          <% end %>
+	          <% @mins = @hours*60 %>
+	          <% @hours -= @mins/60 %>
+	          <% @total_hours = "Total Time: "+@hours.to_i.to_s.rjust(2, "0")+":"+@mins.to_i.to_s.rjust(2, "0") %>
+	        <% end %>
+	      <!-- display clock action based on current clock status -->
           <% ctask = TimeCard.find_by(user_id: current_user.id, task_id: task.id, clocked_in: 1) %>
           <% if ctask %>
             <%= form_tag({controller: "time_cards", id: ctask.id, action: "update"}, {method: "patch"}) do %>
@@ -134,8 +151,9 @@
               <input type='hidden' name='time_card[task_id]' value='<%= task.id %>'>
               <input type='hidden' name='time_card[user_id]' value='<%= current_user.id %>'>
               <input type='hidden' name='time_card[clocked_in]' value='1'>
-              <%= task.name+" - "+@total_hours+"  => " %>
+              <span><%= task.name %></span>
               <button type='submit' class="btn waves-effect waves-light green">Clock In</button>
+              <span><%= @total_hours %></span>
             <% end %>
           <% end %>
         <% end %>
