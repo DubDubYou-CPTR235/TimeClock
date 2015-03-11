@@ -1,6 +1,22 @@
+<div class='navbar-fixed' style='position: fixed; left: 0px; top: 0px;'>
+	<nav class='amber'>
+		<div class='nav-wrapper container'>
+			<a href='#' class='brand-logo'>TimeClock</a>
+			<ul class='right'>
+				<% if current_user.admin %>
+					<li><%= link_to 'New Project', new_project_path, :class => "btn waves-effect waves-light" %></li>
+					<li><%= link_to 'New Task', new_task_path, :class => "btn waves-effect waves-light" %></li>
+				<% end %>
+				<li><%= link_to 'Sign Out', destroy_user_session_path, method: :delete, :class => "btn waves-effect waves-light" %></li>
+			</ul>
+		</div>
+	</nav>
+</div>
+
+<br><br><br>
+
 <div id='tasks'>
 
-<h1>TimeClock</h1>
 <p id="notice"><%= notice %></p>
 
 <!--Table for Recent Tasks-->
@@ -23,7 +39,10 @@
     <% rTasks = [] %>
     <% TimeCard.where("user_id == "+current_user.id.to_s).group("task_id").order("updated_at DESC").each do |entry| %>
       <% if entry.task_id %>
-        <% rTasks << Task.find(entry.task_id) %>
+        <% begin %>
+  	      <% rTasks << Task.find(entry.task_id) %>
+  	    <% rescue %>
+  	    <% end %>
       <% end %>
     <% end %>
     <% rTasks.reject!(&:blank?) %>
@@ -89,18 +108,34 @@
       <div class='collapsible-header green lighten-1'><%= project.name %></div>
       <div class='collapsible-body'><br>
         <% Task.where("project_id == "+project.id.to_s).each do |task| %>
+          <% entries = TimeCard.where("task_id == "+task.id.to_s) %>
+          <% @hours = 0 %>
+          <% if entries %>
+            <% entries.each do |entry| %>
+              <% if entry.clocked_in == 1 %>
+                <% @hours += (Time.now-entry.created_at.to_time)/1.hour %>
+              <% else %>
+                <% @hours += (entry.updated_at.to_time-entry.created_at.to_time)/1.hour %>
+              <% end %>
+            <% end %>
+          <% end %>
+          <% @mins = @hours*60 %>
+          <% @hours -= @mins/60 %>
+          <% @total_hours = @hours.to_i.to_s.rjust(2, "0")+":"+@mins.to_i.to_s.rjust(2, "0") %> 
           <% ctask = TimeCard.find_by(user_id: current_user.id, task_id: task.id, clocked_in: 1) %>
           <% if ctask %>
             <%= form_tag({controller: "time_cards", id: ctask.id, action: "update"}, {method: "patch"}) do %>
               <input type='hidden' name='time_card[clocked_in]' value='0' class='clock_out_field'>
-              <button type='submit' class="btn waves-effect waves-light red"><%= task.name %> - Clock Out</button>
+              <%= task.name+" - "+@total_hours %>
+              <button type='submit' class="btn waves-effect waves-light red">Clock Out</button>
             <% end %>
           <% else %>
             <%= form_tag(controller: "time_cards", action: "create", method: "post") do %>
               <input type='hidden' name='time_card[task_id]' value='<%= task.id %>'>
               <input type='hidden' name='time_card[user_id]' value='<%= current_user.id %>'>
               <input type='hidden' name='time_card[clocked_in]' value='1'>
-              <button type='submit' class="btn waves-effect waves-light green"><%= task.name %> - Clock In</button>
+              <%= task.name+" - "+@total_hours+"  => " %>
+              <button type='submit' class="btn waves-effect waves-light green">Clock In</button>
             <% end %>
           <% end %>
         <% end %>
@@ -108,14 +143,6 @@
     </li>
   <% end %>
 </ul>
-
-<br>
-
-<% if current_user.admin %>
-	<%= link_to 'New Task', new_task_path %>
-<% end %>
-
-<%= link_to 'Sign Out', destroy_user_session_path, method: :delete %>
 
 <br><br><br>
 

@@ -15,10 +15,10 @@
 //= require turbolinks
 //= require_tree .
 
-document.onready = function() {
-	document.body.className += " container";
+$(document).ready(function() {
+	document.body.className += "container";
 	$('select').material_select();
 	$("input[type='submit']").each(function(i,input) {
 		$(this).replaceWith("<button type='submit' class='btn waves-effect waves-light'>"+$(this).val()+"</button>");
 	});
-}
+});
